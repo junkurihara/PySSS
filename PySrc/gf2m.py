@@ -1,5 +1,5 @@
 # gf2m.py: A Python library for GF(2^m) operations
-# Author: Jun Kurihara <kurihara@ieee.org>
+# Author: Jun Kurihara <kurihara at ieee.org>
 
 # import sys
 import numpy as np
