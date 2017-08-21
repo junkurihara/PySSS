@@ -10,11 +10,17 @@ POLYDIC= {2 : 0x03, 4 : 0x03, 8 : 0x1d, 10 : 0x09, 12 : 0x53, 16 : 0x010b} # Deg
 
 class gf2m:
     MAXDEGREE = max(DEGREELIST)
-
     T = TypeVar('T')
 
     # constructor
-    def __init__(self, size: int) -> None:
+    def __init__(self):
+        self.deg = 0x00 # degree of extension
+        self.mord = 0x00 # multiplicative order
+        self.poly = 0x00 # irreducible polynomial
+        self.mul = None # table of multiplicative cyclic group
+        self.idx = None # index table for reference to mul[]
+
+    def setDegree(self, size:int) -> None:
         if size > gf2m.MAXDEGREE:
             raise Exception("The specified degree m exceeds the limit. It must be less than or equal to {0}.".format(gf2m.MAXDEGREE))
         else:
@@ -97,7 +103,8 @@ class gf2m:
 if __name__ == '__main__':
     deg = 8
     vsize = (4) # can be matrix
-    g = gf2m(deg)
+    g = gf2m()
+    g.setDegree(deg)
     nvec1 = np.random.randint(0,g.mord,vsize)
     nvec2 = np.random.randint(0,g.mord,vsize)
     print("multiplicative table of GF(2^{0}) = {1}".format(deg, g.mul))
