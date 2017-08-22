@@ -58,22 +58,55 @@ class GF2m:
         return idx
 
     # public functions
+
+    # Gauss-Jordan Elimination to obtain inverse matrix over GF(2^m)
+    # this code is implemented under the assumption that the input matrix is non-singular
+    def inverse_matrix_gf2m(self, matrix: np.ndarray) -> np.ndarray:
+        matrix = np.concatenate((matrix, np.identity(matrix.shape[0], dtype=np.int)), axis=1)
+        for i in range(matrix.shape[0]):
+            # pivoting
+            k = i
+            while matrix[k][i] == 0 and k < matrix.shape[0]-1:
+                if matrix[k+1][i] != 0:
+                    tmp_m = np.copy(matrix[i])
+                    matrix[i] = matrix[k+1]
+                    matrix[k+1] = tmp_m
+                    break
+                else:
+                    k += 1
+            # forward and backward elimination
+            matrix[i] = self.vmul_gf2m(self.vinv_gf2m(matrix[i][i]), matrix[i])
+            for j in range(matrix.shape[0]):
+                if j != i:
+                    matrix[j] ^= self.vmul_gf2m(matrix[j][i], matrix[i])
+                #print(matrix)
+
+        return matrix[:, matrix.shape[0]:]
+
+    # followings are vectorized implementations
     # vectorized addition over GF(2^m) for ndarray
     def vadd_gf2m(self, x: np.ndarray, y: np.ndarray) -> np.ndarray:
         return np.vectorize(lambda a, b: a ^ b)(x, y)
 
     # vectorized multiplication over GF(2^m) for ndarray
     def vmul_gf2m(self, x: np.ndarray, y: np.ndarray) -> np.ndarray:
-        return np.vectorize(lambda a, b: self.mul[(self.idx[a] + self.idx[b]) % self.mord])(x, y)
+        return np.vectorize(lambda a, b:
+                            self.mul[(self.idx[a] + self.idx[b]) % self.mord]
+                            if a != 0 and b != 0 else 0)(x, y)
 
     # vectorized division over GF(2^m) for ndarray
     def vdiv_gf2m(self, x: np.ndarray, y: np.ndarray) -> np.ndarray:
-        return np.vectorize(lambda a, b: self.mul[((self.mord + (self.idx[a] - self.idx[b])) % self.mord)])(x, y)
+        return np.vectorize(lambda a, b:
+                            self.mul[((self.mord + (self.idx[a] - self.idx[b])) % self.mord)]
+                            if a != 0 else 0)(x, y)
 
     # vectorized inversion over GF(2^m) for ndarray
     def vinv_gf2m(self, x: np.ndarray) -> np.ndarray:
-        return np.vectorize(lambda a: self.mul[((self.mord - self.idx[a]) % self.mord)])(x)
+        return np.vectorize(lambda a:
+                            self.mul[((self.mord - self.idx[a]) % self.mord)]
+                            if a != 0 else 0)(x)
 
+    # followings are naive implementations
     # addition over GF(2^m)
     def add_gf2m(self, x: int, y: int) -> int:
         if x > self.mord or y > self.mord or x < 0 or x < 0:
@@ -83,24 +116,33 @@ class GF2m:
     # multiplication over GF(2^m)
     def mul_gf2m(self, x: int, y: int) -> int:
         try:
-            i = (self.idx[x] + self.idx[y]) % self.mord
-            return self.mul[i]
+            if x == 0 or y == 0:
+                return 0
+            else:
+                i = (self.idx[x] + self.idx[y]) % self.mord
+                return self.mul[i]
         except IndexError:
             print("{0}: Range from 0x00 to {1} must be specified".format(self, hex(self.mord)))
 
     # division over GF(2^m)
     def div_gf2m(self, x: int, y: int) -> int:
         try:
-            i = ((self.mord + (self.idx[x] - self.idx[y])) % self.mord)
-            return self.mul[i]
+            if y == 0:
+                raise Exception(ValueError)
+            else:
+                return self.mul_gf2m(x, self.inv_gf2m(y))
         except IndexError:
             print("{0}: Range from 0x00 to {1} must be specified".format(self, hex(self.mord)))
 
     # inversion over GF(2^m)
     def inv_gf2m(self, x: int) -> int:
-        if x > self.mord or x < 0:
+        try:
+            if x == 0:
+                return 0
+            else:
+                return self.mul[((self.mord - self.idx[x]) % self.mord)]
+        except IndexError:
             print("{0}: Range from 0x00 to {1} must be specified".format(self, hex(self.mord)))
-        return self.mul[((self.mord - self.idx[x]) % self.mord)]
 
 
 """
@@ -114,6 +156,7 @@ def test_gf2m():
     g = GF2m()
     g.set_degree(deg)
     nvec1 = np.random.randint(0, g.mord, vsize)
+    #nvec1 = np.zeros(vsize, dtype=np.int)
     nvec2 = np.random.randint(0, g.mord, vsize)
     print("multiplicative table of GF(2^{0}) = {1}".format(deg, g.mul))
     print("index table of GF(2^{0}) = {1}".format(deg, g.idx))
@@ -123,6 +166,15 @@ def test_gf2m():
     print("nvec1 * nvec2 = {0}".format(g.vmul_gf2m(nvec1, nvec2)))
     print("nvec1 / nvec2 = {0}".format(g.vdiv_gf2m(nvec1, nvec2)))
     print("nvec1^-1 = {0}".format(g.vinv_gf2m(nvec1)))
+    print("2 * nvec1 = {0}".format(g.vmul_gf2m(2, nvec1)))
+
+    mat = np.array([[1, 1, 1, 1], [1, 2, 3, 4], [1, 4, 5, 16], [1, 8, 15, 64]], dtype=np.int)
+
+    print(g.vmul_gf2m([1, 2, 3, 4], mat))
+    print(g.vmul_gf2m(mat[1], mat[2]))
+    print("matrix =\n{0}".format(mat))
+    print("inverse matrix =\n{0}".format(g.inverse_matrix_gf2m(mat)))
+
 
 
 if __name__ == '__main__':
