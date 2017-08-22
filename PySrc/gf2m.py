@@ -98,12 +98,17 @@ class GF2m:
 
     # inversion over GF(2^m)
     def inv_gf2m(self, x: int) -> int:
-        if (x > self.mord or x < 0):
+        if x > self.mord or x < 0:
             print("{0}: Range from 0x00 to {1} must be specified".format(self, hex(self.mord)))
         return self.mul[((self.mord - self.idx[x]) % self.mord)]
 
 
-if __name__ == '__main__':
+"""
+ the following is a test code
+"""
+
+
+def test_gf2m():
     deg = 8
     vsize = 4  # can be matrix
     g = GF2m()
@@ -118,3 +123,7 @@ if __name__ == '__main__':
     print("nvec1 * nvec2 = {0}".format(g.vmul_gf2m(nvec1, nvec2)))
     print("nvec1 / nvec2 = {0}".format(g.vdiv_gf2m(nvec1, nvec2)))
     print("nvec1^-1 = {0}".format(g.vinv_gf2m(nvec1)))
+
+
+if __name__ == '__main__':
+    test_gf2m()
