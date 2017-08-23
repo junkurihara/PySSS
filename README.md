@@ -1,4 +1,4 @@
-# PySSS: Secret sharing scheme over Python
+# PySSS: Secret sharing scheme on Python
 
 PySSS is a library to execute secret sharing schemes on Python, which currently supports the scheme based on the polynomial interpolation [[1]](#Shamir1979) over m-degree extension of a binary Galois Field GF(2^m).
 
