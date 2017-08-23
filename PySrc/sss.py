@@ -55,7 +55,6 @@ class SSS:
 
     # public functions
     def initialize(self, deg: int, threshold: int, ramp: int, num: int) -> None:
-        self.__init__()
         self.gf.set_degree(deg)
         self.__set_params(threshold, ramp, num)
         self.__set_coefficient_matrix()
@@ -93,11 +92,10 @@ class SSS:
         submatrix = self.coefficient_matrix[self._share_index_list[0]]
         for i in self._share_index_list[1:]:
              submatrix = np.vstack((submatrix, self.coefficient_matrix[i]))
-        #print("submatrix = \n{0}".format(submatrix.transpose()))
+        # print("submatrix = \n{0}".format(submatrix.transpose()))
         submatrix = self.gf.inverse_matrix_gf2m(submatrix.transpose()).transpose()
         # print("inverse = \n{0}".format(submatrix))
         self._shares = np.array(self._shares).transpose()
-        #print("transposed shares = \n{0}".format(self._shares))
 
         sec = np.zeros((self._ramp, self._shares.shape[0]), dtype=np.int)
         for i in range(self._ramp):
@@ -110,7 +108,6 @@ class SSS:
 
 
 def test_sss():
-    s = SSS()
     deg = 8
     threshold = 3
     ramp = 1
@@ -122,6 +119,7 @@ def test_sss():
     np.set_printoptions(formatter={'int': hex})
 
     # share generation
+    s = SSS()
     print("\nShare generation:")
     print("Params: (k, l, n, degree) = ({0}, {1}, {2}, {3})".format(threshold, ramp, num, deg))
     nvec = np.random.randint(0, (1 << deg) - 1, org_size)
@@ -135,6 +133,7 @@ def test_sss():
     for i in index_list:
         shares.append(s._shares[i])
     # secret reconstruct
+    s.__init__()
     print("\nSecret reconstruction:")
     s.initialize(deg, threshold, ramp, num)
     s.set_external_shares(shares, index_list)
