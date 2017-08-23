@@ -2,8 +2,7 @@
 
 SS-GF2m provides a secret sharing scheme over $$GF(2^m)$$ that have been originally proposed by A. Shamir in 1979.
 
-```
-math
+```math
 \begin{eqnarray}
  f(x) = \sum_{i=0}^{l-1} s_i x^i + \sum_{j=0}^{k-l-1} r_{j} x^{l+j} in \mathbb{F}_{2^m}[x]
 \end{eqnarray}
