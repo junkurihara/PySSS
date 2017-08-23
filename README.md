@@ -2,7 +2,7 @@
 
 SSS-GF2m provides a python library to execute secret sharing scheme over an m-degree extension of a binary Galois Field, i.e., GF(2^m).
 
-The aim of this library is to provide an implementation of the sophisticated secret sharing scheme based on the polynomial interpolation [1](Shamir1979), which can be used as the benchmark of secret sharing scheme.
+The aim of this library is to provide an implementation of the sophisticated secret sharing scheme based on the polynomial interpolation [[1]](#Shamir1979), which can be used as the benchmark of secret sharing scheme.
 
 # Code structure
 
