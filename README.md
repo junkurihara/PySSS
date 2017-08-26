@@ -5,6 +5,9 @@ PySSS currently supports the ordinary _k_-out-of-_n_ threshold ((_k, n_)-thresho
 
 The aim of this library is to provide an implementation of secret sharing schemes based on the polynomial interpolation, which can be used as a benchmark of secret sharing schemes.
 
+## Status and road map 
+The current status of this project is under development. The polynomial interpolation-based schemes have been implemented, but they are currently just naive implementations. So sophistication in terms of coding is required, e.g., handling irregular parameters. Also, there exists several schemes which are based on other techniques like array codes using only exclusive or operations. In the future road map, such schemes are needed to get implemented as benchmark software.
+
 ## Overview
 The library currently consists of just two python source files, `PySrc/sss.py` and `PySrc/gf2m.py`. You see `PySrc/sample.py` is a sample code to use these two python source files.
 
@@ -29,8 +32,8 @@ s = sss.SSS()
 ```
 You also need to initialize the instance via `SSS.initialize` with four parameters: a degree of field extension _m_, threshold _k_, the ramp parameter _L_, the number of shares _n_, as shown in the following sample code.
 ```python:PySrc/sample.py
-deg = 8
-threshold = 8
+deg = 8 # m of GF(2^m)
+threshold = 8 # k
 ramp = 3  # L
 num = 11  # n
 s.initialize(deg, threshold, ramp, num)
