@@ -1,7 +1,8 @@
-# gf2m.py: A Python library for GF(2^m) operations
-# Author: Jun Kurihara <kurihara at ieee.org>
+"""
+    gf2m.py: A Python library for GF(2^m) operations
+    Author: Jun Kurihara <kurihara at ieee.org>
+"""
 
-# import sys
 import numpy as np
 from typing import Sequence, TypeVar, List
 
@@ -66,11 +67,11 @@ class GF2m:
         for i in range(matrix.shape[0]):
             # pivoting
             k = i
-            while matrix[k][i] == 0 and k < matrix.shape[0]-1:
-                if matrix[k+1][i] != 0:
+            while matrix[k][i] == 0 and k < matrix.shape[0] - 1:
+                if matrix[k + 1][i] != 0:
                     tmp_m = np.copy(matrix[i])
-                    matrix[i] = matrix[k+1]
-                    matrix[k+1] = tmp_m
+                    matrix[i] = matrix[k + 1]
+                    matrix[k + 1] = tmp_m
                     break
                 else:
                     k += 1
@@ -79,7 +80,7 @@ class GF2m:
             for j in range(matrix.shape[0]):
                 if j != i:
                     matrix[j] ^= self.vmul_gf2m(matrix[j][i], matrix[i])
-                #print(matrix)
+                    # print(matrix)
 
         return matrix[:, matrix.shape[0]:]
 
@@ -156,7 +157,6 @@ def test_gf2m():
     g = GF2m()
     g.set_degree(deg)
     nvec1 = np.random.randint(0, g.mord, vsize)
-    #nvec1 = np.zeros(vsize, dtype=np.int)
     nvec2 = np.random.randint(0, g.mord, vsize)
     print("multiplicative table of GF(2^{0}) = {1}".format(deg, g.mul))
     print("index table of GF(2^{0}) = {1}".format(deg, g.idx))
@@ -170,11 +170,10 @@ def test_gf2m():
 
     mat = np.array([[1, 1, 1, 1], [1, 2, 3, 4], [1, 4, 5, 16], [1, 8, 15, 64]], dtype=np.int)
 
-    print(g.vmul_gf2m([1, 2, 3, 4], mat))
+    print(g.vmul_gf2m(np.array([1, 2, 3, 4]), mat))
     print(g.vmul_gf2m(mat[1], mat[2]))
     print("matrix =\n{0}".format(mat))
     print("inverse matrix =\n{0}".format(g.inverse_matrix_gf2m(mat)))
-
 
 
 if __name__ == '__main__':
