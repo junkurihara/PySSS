@@ -61,7 +61,7 @@ s.generate_shares()
 
 # shares are generated in SSS._shares[]
 for i in range(num):
-    print("Share {0}: {1}".format(i, s._shares[i]))
+    print("Share {0}: {1}".format(i, s.get_shares[i]))
 ```
 
 ### Secret reconstruction
@@ -72,7 +72,7 @@ index_list = [0, 1, 2, 8, 4, 7, 9, 10]  # list of share indices for secret recon
 
 # copy from the instance variable
 for i in index_list:
-    shares.append(s._shares[i])
+    shares.append(s.get_shares()[i])
     
 # initialize again and remove all data from the instance
 s.__init__()
@@ -81,13 +81,14 @@ s.initialize(deg, threshold, ramp, num)
 # set copied shares and their indices to the instance
 s.set_external_shares(shares, index_list)
 ```
-Then you can obtain the secret as follows.
+Then you can reconstruct the secret and obtained the reconstructed secret in `SSS._secret` as follows.
 ```python:PySrc/sample.py
 # reconstruct the secret
 s.reconstruct_secret(orig_size)
+reco_secret = s.get_secret()
 
 # check if the original secret coincides with the reconstructed one
-print("Original secret == Reconstructed secret ?: {0}".format(np.allclose(orig_secret, s._secret)))
+print("Original secret == Reconstructed secret ?: {0}".format(np.allclose(orig_secret, reco_secret)))
 ```
 Here we should note that the parameter `orig_size` must be specified. This is because some zeros possibly needed to get padded to the given secret in the phase of share generation since the length of the secret must be a multiple of _l_. Hence such padding objects must be removed in the secret reconstruction phase by giving the original length of the secret.
 
