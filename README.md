@@ -61,7 +61,7 @@ s.generate_shares()
 
 # shares are generated in SSS._shares[]
 for i in range(num):
-    print("Share {0}: {1}".format(i, s.get_shares[i]))
+    print("Share {0}: {1}".format(i, s.get_shares()[i]))
 ```
 
 ### Secret reconstruction
