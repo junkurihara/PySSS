@@ -26,12 +26,12 @@ You can easily see the usage by referring to the sample code `PySrc/sample.py`
 ### Setup
 Whenever you execute share generation or secret reconstruction, you need some set-ups. 
 First you need to instantiate the class `SSS()` in `PySrc/sss.py` as
-```python:PySrc/sample.py
+```python
 import sss
 s = sss.SSS()
 ```
 You also need to initialize the instance via `SSS.initialize` with four parameters: a degree of field extension _m_, threshold _k_, the ramp parameter _L_, the number of shares _n_, as shown in the following sample code.
-```python:PySrc/sample.py
+```python
 deg = 8 # m of GF(2^m)
 threshold = 8 # k
 ramp = 3  # L
@@ -46,7 +46,7 @@ Also note that _k_ must be _k_ <= _n_ and _L_ must be 1 < _L_ < _k_.
 After you initialize the instance of `SSS`, you can generate shares for a secret of arbitrary length.
 In this implementation, the secret is given in the form of one-dimensional `numpy.ndarray`, i.e., a vector, and each element of the vector must be an element of _GF(2^m)_. Namely, each element is of length _m_-bit. The secret is set to the instance via a method `SSS.set_secret`.
 In the following example, the secret is generated at random.
-```python:PySrc/sample.py
+```python
 # generate a random secret of 1024 bytes (deg = 8)
 orig_size = 1024
 orig_secret = np.random.randint(0, (1 << deg) - 1, orig_size) 
@@ -55,7 +55,7 @@ orig_secret = np.random.randint(0, (1 << deg) - 1, orig_size)
 s.set_secret(orig_secret) 
 ```
 Then, you are finally able to generate shares via `SSS.generate_shares`.
-```python:PySrc/sample.py
+```python
 # generate shares from the given secret
 s.generate_shares()
 
@@ -66,7 +66,7 @@ for i in range(num):
 
 ### Secret reconstruction
 In order to reconstruct the secret, you need to set shares and their indices in the instance variables via a method `SSS.set_external_shares`. Here we note that shares themselves are given in the form of a list of one-dimensional `numpy.ndarray` and their indices are given by a list of integers.
-```
+```python
 shares = []  # list of shares for secret reconstruction
 index_list = [0, 1, 2, 8, 4, 7, 9, 10]  # list of share indices for secret reconstruction
 
@@ -82,7 +82,7 @@ s.initialize(deg, threshold, ramp, num)
 s.set_external_shares(shares, index_list)
 ```
 Then you can reconstruct the secret and obtained the reconstructed secret in `SSS._secret` as follows.
-```python:PySrc/sample.py
+```python
 # reconstruct the secret
 s.reconstruct_secret(orig_size)
 reco_secret = s.get_secret()
