@@ -8,15 +8,16 @@ import numpy as np
 import file_wrapper
 
 FILE_NAME = '../SampleData/rashomon.txt'
+FILE_NAME_SHARE_EXT = '.sss'
 DEGREE = 8
 
 
 def main():
     # set params
-    threshold = 5
-    ramp = 3
-    num = 10
-    index_list = [1, 2, 3, 4, 5]
+    threshold = 3
+    ramp = 2
+    num = 5
+    index_list = [1, 2, 4]
     shares = []
 
     # read file to numpy array
@@ -24,6 +25,8 @@ def main():
     orig_size = orig_secret.size
 
     np.set_printoptions(formatter={'int': hex})
+
+    get_share_name = (lambda i: FILE_NAME + str(i) + FILE_NAME_SHARE_EXT)
 
     # share generation
     s = sss.SSS()
@@ -36,13 +39,13 @@ def main():
     s.generate_shares()  # execute share generation with given parameters and secret
     for i in range(num):
         print("Share {0}: {1}".format(i, s.get_shares()[i]))
-
-    # todo: define share file format
-    # todo: function -> write share bytes to file
-    # todo: function -> parse share file format for recovery
+        # write share to files
+        file_wrapper.get_sharefile_from_npbytes(get_share_name(i), orig_size, i, s.get_shares()[i])
 
     for i in index_list:
-        shares.append(s.get_shares()[i])
+        # shares.append(s.get_shares()[i])
+        shares.append(file_wrapper.get_sharepayload_from_file(get_share_name(i))[-1:])
+
     # secret reconstruct
     s.__init__()  # just remove all instance variables
     print("\nSecret reconstruction:")
