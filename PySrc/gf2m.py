@@ -6,12 +6,13 @@
 import numpy as np
 from typing import Sequence, TypeVar, List
 
-DEGREELIST = [2, 4, 8, 10, 12, 16]
-POLYDIC = {2: 0x03, 4: 0x03, 8: 0x1d, 10: 0x09, 12: 0x53, 16: 0x010b}  # Degree:Poly x^12 + x^6 + x^4 + x^1 + 1
+DEGREE_LIST = [2, 4, 8, 10, 12, 16]
+POLYNOMIAL_DIC = {2: 0x03, 4: 0x03, 8: 0x1d, 10: 0x09, 12: 0x53, 16: 0x010b}  # Degree:Poly x^12 + x^6 + x^4 + x^1 + 1
+DATA_TYPE = np.uint16
 
 
 class GF2m:
-    MAXDEGREE = max(DEGREELIST)
+    MAXDEGREE = max(DEGREE_LIST)
     T = TypeVar('T')
 
     # constructor
@@ -27,11 +28,11 @@ class GF2m:
             raise Exception("The specified degree m exceeds the limit. It must be less than or equal to {0}.".format(
                 GF2m.MAXDEGREE))
         else:
-            self.deg = min(filter((lambda x: x >= size), DEGREELIST))
+            self.deg = min(filter((lambda x: x >= size), DEGREE_LIST))
             self.mord = (1 << self.deg) - 1  # multiplicative order
             # print("{0}: (deg, order, mult order) = ({1}, {2}, {3})".format(self, self.deg, self.mord+1, self.mord))
             try:
-                self.poly = POLYDIC[self.deg]
+                self.poly = POLYNOMIAL_DIC[self.deg]
                 # print("{0}: Polynomial = {1}".format(self, hex(self.poly+(1<<self.deg))))
             except KeyError:
                 print("{0}: Polynomial of degree {1} is not defined".format(self, self.deg))
@@ -39,7 +40,8 @@ class GF2m:
             self.idx = self.__gen_idx_table(self.mord, self.mul)
 
     # private functions
-    def __gen_mul_table(self, mord: int, poly: int) -> List[int]:
+    @staticmethod
+    def __gen_mul_table(mord: int, poly: int) -> List[int]:
         # print("{0}: Generate multiplicative table mul[] of the primitive element".format(self))
         poly ^= (mord + 1)
         mul = [0x01]
@@ -48,7 +50,8 @@ class GF2m:
             mul.append(p ^ poly if p > mord else p)
         return mul
 
-    def __gen_idx_table(self, mord: int, mul: Sequence[T]) -> List[int]:
+    @staticmethod
+    def __gen_idx_table(mord: int, mul: Sequence[T]) -> List[int]:
         # print("{0}: Generate index table idx[] that maps the value to the exponent
         #  (e.g., when mul[i] = j, idx[j] = i)".format(self))
         idx = [-1] * (mord + 1)  # 0 is not in multiplicative table
@@ -63,7 +66,7 @@ class GF2m:
     # Gauss-Jordan Elimination to obtain inverse matrix over GF(2^m)
     # this code is implemented under the assumption that the input matrix is non-singular
     def inverse_matrix_gf2m(self, matrix: np.ndarray) -> np.ndarray:
-        matrix = np.concatenate((matrix, np.identity(matrix.shape[0], dtype=np.int)), axis=1)
+        matrix = np.concatenate((matrix, np.identity(matrix.shape[0], dtype=DATA_TYPE)), axis=1)
         for i in range(matrix.shape[0]):
             # pivoting
             k = i
@@ -86,26 +89,27 @@ class GF2m:
 
     # followings are vectorized implementations
     # vectorized addition over GF(2^m) for ndarray
-    def vadd_gf2m(self, x: np.ndarray, y: np.ndarray) -> np.ndarray:
-        return np.vectorize(lambda a, b: a ^ b)(x, y)
+    @staticmethod
+    def vadd_gf2m(x: np.ndarray, y: np.ndarray) -> np.ndarray:
+        return np.vectorize(lambda a, b: a ^ b)(x, y).astype(DATA_TYPE)
 
     # vectorized multiplication over GF(2^m) for ndarray
-    def vmul_gf2m(self, x: np.ndarray, y: np.ndarray) -> np.ndarray:
+    def vmul_gf2m(self, x: object, y: object) -> np.ndarray:
         return np.vectorize(lambda a, b:
                             self.mul[(self.idx[a] + self.idx[b]) % self.mord]
-                            if a != 0 and b != 0 else 0)(x, y)
+                            if a != 0 and b != 0 else 0)(x, y).astype(DATA_TYPE)
 
     # vectorized division over GF(2^m) for ndarray
     def vdiv_gf2m(self, x: np.ndarray, y: np.ndarray) -> np.ndarray:
         return np.vectorize(lambda a, b:
                             self.mul[((self.mord + (self.idx[a] - self.idx[b])) % self.mord)]
-                            if a != 0 else 0)(x, y)
+                            if a != 0 else 0)(x, y).astype(DATA_TYPE)
 
     # vectorized inversion over GF(2^m) for ndarray
     def vinv_gf2m(self, x: np.ndarray) -> np.ndarray:
         return np.vectorize(lambda a:
                             self.mul[((self.mord - self.idx[a]) % self.mord)]
-                            if a != 0 else 0)(x)
+                            if a != 0 else 0)(x).astype(DATA_TYPE)
 
     # followings are naive implementations
     # addition over GF(2^m)

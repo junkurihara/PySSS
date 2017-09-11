@@ -1,10 +1,10 @@
 """
-    file_wrapper.py: A Python wrapper to handle byte objects
+    file_wrapper.py: A Python wrapper to handle byte objects/files
     Author: Jun Kurihara <kurihara at ieee.org>
 """
-import numpy as np
 from ctypes import *
-import io
+
+import numpy as np
 
 DATA_TYPE = np.uint8
 FILE_NAME = '../SampleData/rashomon.txt'
@@ -31,15 +31,15 @@ def get_npbytes_from_file(infile_name: str) -> np.ndarray:
     return npbytes_from_buffer(indata)
 
 
-def get_sharefile_from_npbytes(share_file_name: str, orig_len: c_uint32, index: c_uint32, nppayload: np.ndarray) -> None:
+def get_sharefile_from_npbytes(file_name: str, orig_len: c_uint32, index: c_uint32, nppayload: np.ndarray) -> None:
     # todo: set padding tailor for alignment
     header = create_header(orig_len, len(nppayload), index)
-    outfile = open(share_file_name, "wb")
+    outfile = open(file_name, "wb")
     outfile.write(memoryview(header).tobytes() + npbytes_to_buffer(nppayload))
     outfile.close()
 
 
-def get_sharepayload_from_file(share_file_name: str) -> [c_uint32, c_uint32, c_uint32, bytes]:
+def get_share_npbytes_from_file(share_file_name: str) -> [c_uint32, c_uint32, c_uint32, np.ndarray]:
     file = open(share_file_name, "rb")
     indata = file.read()
     file.close()
@@ -74,7 +74,7 @@ if __name__ == '__main__':
     print(numpydata.size)
 
     get_sharefile_from_npbytes("../SampleData/test.txt", numpydata.size, 0, numpydata)
-    xyz = get_sharepayload_from_file("../SampleData/test.txt")
+    xyz = get_share_npbytes_from_file("../SampleData/test.txt")
 
     print(xyz[:-1])
     print(np.allclose(numpydata, xyz[-1:]))
