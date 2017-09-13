@@ -17,6 +17,8 @@ The library currently consists of some python source files. You see `PySrc/sampl
 
 `PySrc/sss.py` defines a abstract base class of secret sharing scheme objects.
 
+`PySrc/file_wrapper` gives some functions to handle byte objects and files.
+
 `PySrc/gfp.py` and `PySrc/xor_sss.py` are now skeletons of XOR-based secret sharing schemes. 
 
 ## Requirements
