@@ -3,7 +3,7 @@
     Author: Jun Kurihara <kurihara at ieee.org>
 """
 
-import sss
+import rs_sss
 import numpy as np
 import file_wrapper
 
@@ -29,10 +29,10 @@ def main():
     get_share_name = (lambda idx: FILE_NAME + str(idx) + FILE_NAME_SHARE_EXT)
 
     # share generation
-    s = sss.SSS()
+    s = rs_sss.RS_SSS(DEGREE)
     print("Share generation:")
     print("Params: (k, l, n) = ({0}, {1}, {2}) over GF(2^{3})".format(threshold, ramp, num, DEGREE))
-    s.initialize(DEGREE, threshold, ramp, num)  # initialize with given parameters
+    s.initialize(threshold, ramp, num)  # initialize with given parameters
     print("Secret file: {0}".format(FILE_NAME))
     print("Secret: {0}".format(orig_secret))
     print("Secret size: {0} bytes".format(int(orig_size * DEGREE / 8)))
@@ -48,9 +48,9 @@ def main():
         shares.append(file_wrapper.get_share_npbytes_from_file(get_share_name(i))[-1:])
 
     # secret reconstruct
-    s.__init__()  # just remove all instance variables
+    s.__init__(DEGREE)  # just remove all instance variables
     print("\nSecret reconstruction:")
-    s.initialize(DEGREE, threshold, ramp, num)  # initialize with given parameters
+    s.initialize(threshold, ramp, num)  # initialize with given parameters
     s.set_external_shares(shares, index_list)  # set given shares in the instance
     print("Given params: (k, l, n, share indices, original size) = ({0}, {1}, {2}, {3}, {4}) over GF(2^{5})"
           .format(threshold, ramp, num, index_list, orig_size, DEGREE))

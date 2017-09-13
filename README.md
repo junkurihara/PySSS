@@ -9,11 +9,15 @@ The aim of this library is to provide an implementation of secret sharing scheme
 The current status of this project is under development. The polynomial interpolation-based schemes have been implemented, but they are currently just naive implementations. So sophistication in terms of coding is required, e.g., handling irregular parameters. Also, there exists several schemes which are based on other techniques like array codes using only exclusive or operations. In the future road map, such schemes are needed to get implemented as benchmark software.
 
 ## Overview
-The library currently consists of just two python source files, `PySrc/sss.py` and `PySrc/gf2m.py`. You see `PySrc/sample.py` is a sample code to use these two python source files.
+The library currently consists of some python source files. You see `PySrc/sample.py` is a sample code to use these python source files.
 
 `PySrc/gf2m.py` is a python code for addition, multiplication, division and inversion over an m-degree extension field of _GF(2)_.
 
-`PySrc/sss.py` is a naive implementation of a (_k, n_)-threshold scheme and (_k, L, n_)-threshold ramp scheme over _GF(2^m)_ and , which supports share generation from given secret and secret reconstruction from given shares.
+`PySrc/rs_sss.py` is a naive implementation of a Reed-Solomon code-based (_k, n_)-threshold scheme and (_k, L, n_)-threshold ramp scheme over _GF(2^m)_ , which supports share generation from given secret and secret reconstruction from given shares.
+
+`PySrc/sss.py` defines a abstract base class of secret sharing scheme objects.
+
+`PySrc/gfp.py` and `PySrc/xor_sss.py` are now skeletons of XOR-based secret sharing schemes. 
 
 ## Requirements
 This library requires:
@@ -25,26 +29,26 @@ You can easily see the usage by referring to the sample code `PySrc/sample.py`
 
 ### Setup
 Whenever you execute share generation or secret reconstruction, you need some set-ups. 
-First you need to instantiate the class `SSS()` in `PySrc/sss.py` as
+First you need to instantiate the class `RS_SSS()` in `PySrc/rs_sss.py` with a degree of field extension _m_, as
 ```python
-import sss
-s = sss.SSS()
-```
-You also need to initialize the instance via `SSS.initialize` with four parameters: a degree of field extension _m_, threshold _k_, the ramp parameter _L_, the number of shares _n_, as shown in the following sample code.
-```python
+import rs_sss
 deg = 8 # m of GF(2^m)
+s = rs_sss.RS_SSS(deg)
+```
+You also need to initialize the instance via `RS_SSS.initialize` with three parameters: threshold _k_, the ramp parameter _L_, the number of shares _n_, as shown in the following sample code.
+```python
 threshold = 8 # k
 ramp = 3  # L
 num = 11  # n
-s.initialize(deg, threshold, ramp, num)
+s.initialize(threshold, ramp, num)
 ```
 Here, recall that the (_k, 1, n_)-threshold scheme coincides with the (_k, n_)-threshold scheme.
 Hence when you set the ramp parameter _L_ = 1 in the initialization phase, you will execute the standard threshold scheme.
 Also note that _k_ must be _k_ <= _n_ and _L_ must be 1 < _L_ < _k_.
 
 ### Share generation
-After you initialize the instance of `SSS`, you can generate shares for a secret of arbitrary length.
-In this implementation, the secret is given in the form of one-dimensional `numpy.ndarray`, i.e., a vector, and each element of the vector must be an element of _GF(2^m)_. Namely, each element is of length _m_-bit. The secret is set to the instance via a method `SSS.set_secret`.
+After you initialize the instance of `RS_SSS`, you can generate shares for a secret of arbitrary length.
+In this implementation, the secret is given in the form of one-dimensional `numpy.ndarray`, i.e., a vector, and each element of the vector must be an element of _GF(2^m)_. Namely, each element is of length _m_-bit. The secret is set to the instance via a method `RS_SSS.set_secret`.
 In the following example, the secret is generated at random.
 ```python
 # generate a random secret of 1024 bytes (deg = 8)
@@ -54,7 +58,7 @@ orig_secret = np.random.randint(0, (1 << deg) - 1, orig_size)
 # set the secret into the instance
 s.set_secret(orig_secret) 
 ```
-Then, you are finally able to generate shares via `SSS.generate_shares`.
+Then, you are finally able to generate shares via `RS_SSS.generate_shares`.
 ```python
 # generate shares from the given secret
 s.generate_shares()
@@ -65,7 +69,7 @@ for i in range(num):
 ```
 
 ### Secret reconstruction
-In order to reconstruct the secret, you need to set shares and their indices in the instance variables via a method `SSS.set_external_shares`. Here we note that shares themselves are given in the form of a list of one-dimensional `numpy.ndarray` and their indices are given by a list of integers.
+In order to reconstruct the secret, you need to set shares and their indices in the instance variables via a method `RS_SSS.set_external_shares`. Here we note that shares themselves are given in the form of a list of one-dimensional `numpy.ndarray` and their indices are given by a list of integers.
 ```python
 shares = []  # list of shares for secret reconstruction
 index_list = [0, 1, 2, 8, 4, 7, 9, 10]  # list of share indices for secret reconstruction
@@ -75,13 +79,13 @@ for i in index_list:
     shares.append(s.get_shares()[i])
     
 # initialize again and remove all data from the instance
-s.__init__()
-s.initialize(deg, threshold, ramp, num)
+s.__init__(deg)
+s.initialize(threshold, ramp, num)
 
 # set copied shares and their indices to the instance
 s.set_external_shares(shares, index_list)
 ```
-Then you can reconstruct the secret and obtained the reconstructed secret in `SSS._secret` as follows.
+Then you can reconstruct the secret and obtained the reconstructed secret in `RS_SSS._secret` as follows.
 ```python
 # reconstruct the secret
 s.reconstruct_secret(orig_size)
