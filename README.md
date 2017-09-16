@@ -6,7 +6,7 @@ PySSS currently supports the ordinary _k_-out-of-_n_ threshold ((_k, n_)-thresho
 The aim of this library is to provide an implementation of secret sharing schemes based on the polynomial interpolation, which can be used as a benchmark of secret sharing schemes.
 
 ## Status and road map 
-The current status of this project is under development. The polynomial interpolation-based schemes have been implemented, but they are currently just naive implementations. So sophistication in terms of coding is required, e.g., handling irregular parameters. Also, there exists several schemes which are based on other techniques like array codes using only exclusive or operations. In the future road map, such schemes are needed to get implemented as benchmark software.
+The current status of this project is under development. The polynomial interpolation-based schemes have been implemented, but they are currently just naive implementations. So sophistication in terms of coding is required, e.g., handling irregular parameters. Also, there exists several schemes which are based on other techniques like array codes using only exclusive-or operations. In the future road map, such schemes are needed to get implemented as benchmark software.
 
 ## Overview
 The library currently consists of some python source files. You see `PySrc/sample.py` is a sample code to use these python source files.
@@ -71,7 +71,7 @@ for i in range(num):
 ```
 
 ### Secret reconstruction
-In order to reconstruct the secret, you need to set shares and their indices in the instance variables via a method `RS_SSS.set_external_shares`. Here we note that shares themselves are given in the form of a list of one-dimensional `numpy.ndarray` and their indices are given by a list of integers.
+In order to reconstruct the secret, you need to set shares and their indices as instance variables via a method `RS_SSS.set_external_shares`. Here we note that shares themselves are given in the form of a list of one-dimensional `numpy.ndarray` and their indices are given by a list of integers.
 ```python
 shares = []  # list of shares for secret reconstruction
 index_list = [0, 1, 2, 8, 4, 7, 9, 10]  # list of share indices for secret reconstruction
@@ -87,7 +87,7 @@ s.initialize(threshold, ramp, num)
 # set copied shares and their indices to the instance
 s.set_external_shares(shares, index_list)
 ```
-Then you can reconstruct the secret and obtained the reconstructed secret in `RS_SSS._secret` as follows.
+Then you can reconstruct the secret and obtain the reconstructed secret in `RS_SSS._secret` as follows.
 ```python
 # reconstruct the secret
 s.reconstruct_secret(orig_size)
@@ -96,7 +96,7 @@ reco_secret = s.get_secret()
 # check if the original secret coincides with the reconstructed one
 print("Original secret == Reconstructed secret ?: {0}".format(np.allclose(orig_secret, reco_secret)))
 ```
-Here we should note that the parameter `orig_size` must be specified. This is because some zeros possibly needed to get padded to the given secret in the phase of share generation since the length of the secret must be a multiple of _l_. Hence such padding objects must be removed in the secret reconstruction phase by giving the original length of the secret.
+Here we should note that the parameter `orig_size` must be specified. This is because some zeros might have got padded to the given secret in the phase of share generation since the length of the secret must be a multiple of _l_. Hence such padding objects must be removed in the secret reconstruction phase by giving the original length of the secret.
 
 ## License
 Licensed under the MIT license, see `LICENSE` file.
