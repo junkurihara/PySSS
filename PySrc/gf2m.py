@@ -12,7 +12,7 @@ DATA_TYPE = np.uint16
 
 
 class GF2m:
-    MAXDEGREE = max(DEGREE_LIST)
+    MAX_DEGREE = max(DEGREE_LIST)
     T = TypeVar('T')
 
     # constructor
@@ -24,9 +24,9 @@ class GF2m:
         self.idx = None  # index table for reference to mul[]
 
     def set_degree(self, size: int) -> None:
-        if size > GF2m.MAXDEGREE:
+        if size > GF2m.MAX_DEGREE:
             raise Exception("The specified degree m exceeds the limit. It must be less than or equal to {0}.".format(
-                GF2m.MAXDEGREE))
+                GF2m.MAX_DEGREE))
         else:
             self.deg = min(filter((lambda x: x >= size), DEGREE_LIST))
             self.mord = (1 << self.deg) - 1  # multiplicative order
@@ -36,18 +36,21 @@ class GF2m:
                 # print("{0}: Polynomial = {1}".format(self, hex(self.poly+(1<<self.deg))))
             except KeyError:
                 print("{0}: Polynomial of degree {1} is not defined".format(self, self.deg))
-            self.mul = self.__gen_mul_table(self.mord, self.poly)
+            self.mul = self.__gen_mul_table(self.mord, self.deg, self.poly)
             self.idx = self.__gen_idx_table(self.mord, self.mul)
 
     # private functions
     @staticmethod
-    def __gen_mul_table(mord: int, poly: int) -> List[int]:
+    def __gen_mul_table(mord: int, deg: int, poly: int) -> List[int]:
         # print("{0}: Generate multiplicative table mul[] of the primitive element".format(self))
-        poly ^= (mord + 1)
+        threshold = 1 << (deg - 1)  # to avoid buffer overflow just in case
         mul = [0x01]
         for i in range(mord - 1):  # multiplicative order is 2^m-1, |F^*(2^m)|=2^m-1
-            p = mul[i] << 1
-            mul.append(p ^ poly if p > mord else p)
+            if mul[i] < threshold:
+                p = mul[i] << 1
+            else:
+                p = ((mul[i] ^ threshold) << 1) ^ poly
+            mul.append(p)
         return mul
 
     @staticmethod
