@@ -20,6 +20,11 @@ def main():
     index_list = [1, 2, 4]
     shares = []
 
+    # assertion to check if given parameters is appropriate
+    assert 1 < ramp < threshold
+    assert threshold < num
+    assert len(index_list) >= threshold
+
     # read file to numpy array
     orig_secret = file_wrapper.get_npbytes_from_file(FILE_NAME)
     orig_size = orig_secret.size
