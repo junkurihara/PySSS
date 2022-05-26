@@ -7,7 +7,7 @@ import rs_sss
 import numpy as np
 import file_wrapper
 
-FILE_NAME = '../SampleData/rashomon.txt'
+FILE_NAME = '../sample_data/rashomon.txt'
 FILE_NAME_SHARE_EXT = '.sss'
 DEGREE = 8
 
