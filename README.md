@@ -11,17 +11,17 @@ The current status of this project is under development. The polynomial interpol
 
 ## Overview
 
-The library currently consists of some python source files. You see `src/sample.py` is a sample code to use these python source files.
+The library currently consists of some python source files. You see `./sample.py` is a sample code to use these python source files.
 
-`src/gf2m.py` is a python code for addition, multiplication, division and inversion over an m-degree extension field of _GF(2)_.
+`pysss/gf2m.py` is a python code for addition, multiplication, division and inversion over an m-degree extension field of _GF(2)_.
 
-`src/rs_sss.py` is a naive implementation of a Reed-Solomon code-based (_k, n_)-threshold scheme and (_k, L, n_)-threshold ramp scheme over _GF(2^m)_ , which supports share generation from given secret and secret reconstruction from given shares.
+`pysss/rs_sss.py` is a naive implementation of a Reed-Solomon code-based (_k, n_)-threshold scheme and (_k, L, n_)-threshold ramp scheme over _GF(2^m)_ , which supports share generation from given secret and secret reconstruction from given shares.
 
-`src/sss.py` defines a abstract base class of secret sharing scheme objects.
+`pysss/sss.py` defines a abstract base class of secret sharing scheme objects.
 
-`src/file_wrapper` gives some functions to handle byte objects and files.
+`pysss/file_wrapper` gives some functions to handle byte objects and files.
 
-`src/gfp.py` and `src/xor_sss.py` are now skeletons of XOR-based secret sharing schemes.
+`pysss/gfp.py` and `pysss/xor_sss.py` are now skeletons of XOR-based secret sharing schemes.
 
 ## Setup
 
@@ -42,13 +42,13 @@ pip install -r requirements.txt
 
 ## Usage
 
-You can easily see the usage by referring to the sample code `src/sample.py`
+You can easily see the usage by referring to the sample code `./sample.py`
 
 Whenever you execute share generation or secret reconstruction, you need some set-ups.
-First you need to instantiate the class `RS_SSS()` in `src/rs_sss.py` with a degree of field extension _m_, as
+First you need to instantiate the class `RS_SSS()` in `pysss/rs_sss.py` with a degree of field extension _m_, as
 
 ```python
-import rs_sss
+from pysss import rs_sss
 deg = 8 # m of GF(2^m)
 s = rs_sss.RS_SSS(deg)
 ```
